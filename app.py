@@ -13,15 +13,19 @@ st.set_page_config(
 st.title("✈️ Dashboard Ejecutivo: Operaciones y Puntualidad Aérea (DOT)")
 st.markdown("Análisis estratégico de impuntualidad, factores causales y desempeño por aerolínea.")
 
-# 2. Carga optimizada concatenando los 6 archivos .parquet desde GitHub
+# 2. Carga optimizada leyendo TODOS los archivos .parquet existentes
 @st.cache_data
 def cargar_datos():
-    # Busca todos los archivos Parquet de muestra en la raíz o en subcarpetas
-    archivos = glob.glob('datos_limpios_muestra_*.parquet')
+    # Busca cualquier archivo que coincida con el patrón datos_limpios_*.parquet
+    archivos = glob.glob('datos_limpios_*.parquet')
     if not archivos:
-        archivos = glob.glob('**/datos_limpios_muestra_*.parquet', recursive=True)
+        archivos = glob.glob('**/datos_limpios_*.parquet', recursive=True)
     
-    # Lee y concatena todos los archivos encontrados
+    if not archivos:
+        st.error("No se encontraron archivos .parquet que coincidan con 'datos_limpios_*.parquet'.")
+        st.stop()
+
+    # Lee y concatena automáticamente todos los archivos encontrados (ej. los 20 existentes)
     lista_df = [pd.read_parquet(f) for f in sorted(archivos)]
     df_cargado = pd.concat(lista_df, ignore_index=True)
     return df_cargado
@@ -29,7 +33,7 @@ def cargar_datos():
 df = cargar_datos()
 
 # ------------------------------------------------------------------------------
-# 3. FILTROS INTERACTIVOS (Requisito: 2 filtros)
+# 3. FILTROS INTERACTIVOS
 # ------------------------------------------------------------------------------
 st.sidebar.header("🔍 Filtros de Operación")
 
@@ -39,7 +43,7 @@ aerolinea_sel = st.sidebar.selectbox("Seleccionar Aerolínea:", aerolineas_dispo
 
 # Filtro 2: Categoría de Retraso
 categorias_disponibles = ['Todas'] + sorted(df['CATEGORIA_RETRASO'].dropna().unique().tolist())
-categoria_sel = st.sidebar.selectbox("Filtrar por Categoría de Retraso:", categoria_sel if 'categoria_sel' in locals() else categorias_disponibles)
+categoria_sel = st.sidebar.selectbox("Filtrar por Categoría de Retraso:", categorias_disponibles)
 
 # Aplicar filtros
 df_filtrado = df.copy()
@@ -52,7 +56,7 @@ st.sidebar.markdown("---")
 st.sidebar.info(f"Mostrando **{len(df_filtrado):,}** registros de un total de **{len(df):,}**.")
 
 # ------------------------------------------------------------------------------
-# 4. KPIs EJECUTIVOS (Requisito: 4–6 KPIs)
+# 4. KPIs EJECUTIVOS
 # ------------------------------------------------------------------------------
 total_vuelos = len(df_filtrado)
 vuelos_a_tiempo = (df_filtrado['ARRIVAL_DELAY'] <= 15).sum()
@@ -72,7 +76,7 @@ kpi5.metric("Tasa Cancelación", f"{tasa_cancelacion:.2f}%")
 st.markdown("---")
 
 # ------------------------------------------------------------------------------
-# 5. GRÁFICOS INTERACTIVOS (Requisito: 3–4 gráficos)
+# 5. GRÁFICOS INTERACTIVOS
 # ------------------------------------------------------------------------------
 col_g1, col_g2 = st.columns(2)
 
@@ -144,7 +148,7 @@ with col_g4:
 st.markdown("---")
 
 # ------------------------------------------------------------------------------
-# 6. HALLAZGOS Y RECOMENDACIONES (Requisito: 3 hallazgos, 2 recomendaciones)
+# 6. HALLAZGOS Y RECOMENDACIONES
 # ------------------------------------------------------------------------------
 col_h, col_r = st.columns(2)
 
