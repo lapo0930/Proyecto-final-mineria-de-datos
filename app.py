@@ -15,14 +15,13 @@ st.markdown("Análisis estratégico de impuntualidad, factores causales y desemp
 # 2. Carga optimizada de datos limpios
 @st.cache_data
 def cargar_datos():
-    # Intenta cargar desde parquet o csv
-    try:
-        df = pd.read_parquet('datos_limpios.parquet')
-    except:
-        df = pd.read_csv('datos_limpios.csv')
+    # ID de tu archivo de Google Drive
+    file_id = '15V1DHR7aS2eTyr6vYYwxySstK-zPu_1F'
+    url = f'https://drive.google.com/file/d/15V1DHR7aS2eTyr6vYYwxySstK-zPu_1F/view?usp=sharing'
+    
+    # Carga directa usando pandas
+    df = pd.read_parquet(url)
     return df
-
-df = cargar_datos()
 
 # ------------------------------------------------------------------------------
 # 3. FILTROS INTERACTIVOS (Requisito: 2 filtros)
