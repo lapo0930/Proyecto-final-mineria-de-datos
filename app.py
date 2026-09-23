@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import glob
 
 # 1. Configuración de la página (Una sola pantalla ejecutiva)
 st.set_page_config(
@@ -12,11 +13,17 @@ st.set_page_config(
 st.title("✈️ Dashboard Ejecutivo: Operaciones y Puntualidad Aérea (DOT)")
 st.markdown("Análisis estratégico de impuntualidad, factores causales y desempeño por aerolínea.")
 
-# 2. Carga optimizada de datos limpios desde el archivo subido a GitHub
+# 2. Carga optimizada concatenando los 6 archivos .parquet desde GitHub
 @st.cache_data
 def cargar_datos():
-    # Carga directamente la muestra parquet guardada en el repositorio
-    df_cargado = pd.read_parquet('datos_limpios_muestra.parquet')
+    # Busca todos los archivos Parquet de muestra en la raíz o en subcarpetas
+    archivos = glob.glob('datos_limpios_muestra_*.parquet')
+    if not archivos:
+        archivos = glob.glob('**/datos_limpios_muestra_*.parquet', recursive=True)
+    
+    # Lee y concatena todos los archivos encontrados
+    lista_df = [pd.read_parquet(f) for f in sorted(archivos)]
+    df_cargado = pd.concat(lista_df, ignore_index=True)
     return df_cargado
 
 df = cargar_datos()
@@ -32,7 +39,7 @@ aerolinea_sel = st.sidebar.selectbox("Seleccionar Aerolínea:", aerolineas_dispo
 
 # Filtro 2: Categoría de Retraso
 categorias_disponibles = ['Todas'] + sorted(df['CATEGORIA_RETRASO'].dropna().unique().tolist())
-categoria_sel = st.sidebar.selectbox("Filtrar por Categoría de Retraso:", categorias_disponibles)
+categoria_sel = st.sidebar.selectbox("Filtrar por Categoría de Retraso:", categoria_sel if 'categoria_sel' in locals() else categorias_disponibles)
 
 # Aplicar filtros
 df_filtrado = df.copy()
