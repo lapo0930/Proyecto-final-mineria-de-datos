@@ -12,19 +12,13 @@ st.set_page_config(
 st.title("✈️ Dashboard Ejecutivo: Operaciones y Puntualidad Aérea (DOT)")
 st.markdown("Análisis estratégico de impuntualidad, factores causales y desempeño por aerolínea.")
 
-# 2. Carga optimizada de datos limpios
+# 2. Carga optimizada de datos limpios desde el archivo subido a GitHub
 @st.cache_data
 def cargar_datos():
-    # ID de tu archivo de Google Drive
-    file_id = '15V1DHR7aS2eTyr6vYYwxySstK-zPu_1F'
-    # URL para la descarga directa del archivo desde Google Drive
-    url = f'https://drive.google.com/uc?export=download&id={file_id}'
-    
-    # Carga directa usando pandas
-    df_cargado = pd.read_parquet(url)
+    # Carga directamente la muestra parquet guardada en el repositorio
+    df_cargado = pd.read_parquet('datos_limpios_muestra.parquet')
     return df_cargado
 
-# ¡CORRECCIÓN CLAVE!: Llamar a la función para instanciar la variable df
 df = cargar_datos()
 
 # ------------------------------------------------------------------------------
