@@ -17,11 +17,15 @@ st.markdown("Análisis estratégico de impuntualidad, factores causales y desemp
 def cargar_datos():
     # ID de tu archivo de Google Drive
     file_id = '15V1DHR7aS2eTyr6vYYwxySstK-zPu_1F'
-    url = f'https://drive.google.com/file/d/15V1DHR7aS2eTyr6vYYwxySstK-zPu_1F/view?usp=sharing'
+    # URL para la descarga directa del archivo desde Google Drive
+    url = f'https://drive.google.com/uc?export=download&id={file_id}'
     
     # Carga directa usando pandas
-    df = pd.read_parquet(url)
-    return df
+    df_cargado = pd.read_parquet(url)
+    return df_cargado
+
+# ¡CORRECCIÓN CLAVE!: Llamar a la función para instanciar la variable df
+df = cargar_datos()
 
 # ------------------------------------------------------------------------------
 # 3. FILTROS INTERACTIVOS (Requisito: 2 filtros)
